@@ -1,0 +1,354 @@
+// Interfaces base del sistema original
+interface Habilidad {
+    var nombre: String
+    var activo: Boolean
+    var descripcion: String?
+    
+    fun activar(): Boolean{
+        if (activo){
+            return false
+        }
+        
+        else{
+            activo = true
+            return true
+        }
+    }
+    
+    fun desactivar(): Boolean{
+        if (!activo){
+            return false
+        }
+        else {
+            activo = false
+            return true
+        }
+    }
+}
+
+interface Habilidades{
+    var capacidades: MutableList<Habilidad>
+    
+    fun activar_capacidad(nombre: String): Boolean{
+        for(capacidad in capacidades){
+            if(capacidad.nombre == nombre){
+                return capacidad.activar()
+            }
+            
+        }
+        
+        return false
+    }
+    
+    fun agregar_capacidad(capacidad_nueva: Habilidad){
+        capacidades.add(capacidad_nueva)
+    }
+    
+    fun descripcion(): String{
+        var lista_de_capacidades = "${capacidades.size}: "
+        
+        for(capacidad in capacidades){
+            lista_de_capacidades = "${lista_de_capacidades}, ${capacidad.nombre}"
+        }
+        
+        return lista_de_capacidades
+    }
+}
+
+// interfaces para composition del bebe
+interface RutinaParaComer {
+    fun tomar_leche()
+    fun comer_comida_solida()
+    fun horario_de_comida(): List<String>
+    fun Poder_para_comer(nombrePoder: String): Boolean
+}
+
+interface RutinaParaDormir {
+    fun dormir_siesta()
+    fun dormir_noche()
+    fun Horario_para_dormir(): Int
+    fun rutina_dormir()
+    fun poder_para_dormir(nombrePoder: String): Boolean
+}
+
+interface BebeJugando {
+    fun jugar_con_jugetes()
+    fun interactuar_con_papas()
+    fun habilidades_motrices()
+    fun obtener_juegos_favoritos(): List<String>
+    fun usar_poder_para_jugar(nombrePoder: String): Boolean
+}
+
+// Clases de poderes (los realizados en clase)
+class SuperPoder(
+    override var nombre: String,
+    override var activo: Boolean,
+    override var descripcion: String?
+): Habilidad {}
+// Clases poderes especiales (hechos por mi)
+class PoderEspecialBebe(
+    override var nombre: String,
+    override var activo: Boolean,
+    override var descripcion: String?,
+    val categoria: String
+): Habilidad {
+    
+    fun ejecutar_poder_especial(): String {
+        return if (activo) {
+            "Poder $nombre activado en la $categoria"
+        } else {
+            "Poder $nombre no esta activo"
+        }
+    }
+}
+
+// composition con toString
+object GestionAlimentacionBebe : RutinaParaComer {
+    override fun tomar_leche() {
+        println("El bebe esta tomando su biberon de leche")
+    }
+    
+    override fun comer_comida_solida() {
+        println("El bebe esta comiendo papilla y alimentos solidos")
+    }
+    
+    override fun horario_de_comida(): List<String> {
+        return listOf("07:00", "10:00", "13:00", "16:00", "19:00", "22:00")
+    }
+    
+    override fun Poder_para_comer(nombrePoder: String): Boolean {
+        println("El bebe usa el poder $nombrePoder para facilitar su alimentacion")
+        return true
+    }
+    
+    override fun toString(): String {
+        return "GestionAlimentacionBebe: Maneja la alimentacion del bebe incluyendo horarios de su leche y su comida solida"
+    }
+}
+
+object GestionSuenoBebe : RutinaParaDormir {
+    override fun dormir_siesta() {
+        println("El bebe esta tomando una siesta reparadora")
+    }
+    
+    override fun dormir_noche() {
+        println("El bebe ha esta durmiendo toda la noche")
+    }
+    
+    override fun Horario_para_dormir(): Int {
+        return 14
+    }
+    
+    override fun rutina_dormir() {
+        println("Estableciendo rutina de sueno: bano, cuento, musica relajante")
+    }
+    
+    override fun poder_para_dormir(nombrePoder: String): Boolean {
+        println("El bebe usa el poder $nombrePoder para dormir mejor")
+        return true
+    }
+    
+    override fun toString(): String {
+        return "GestionSuenoBebe: Administra los patrones de sueno y rutinas nocturnas del bebe"
+    }
+}
+
+object GestionJuegoBebe : BebeJugando {
+    override fun jugar_con_jugetes() {
+        println("El bebe esta jugando con sus juguetes coloridos")
+    }
+    
+    override fun interactuar_con_papas() {
+        println("El bebe esta interactuando y sonriendo con sus padres")
+    }
+    
+    override fun habilidades_motrices() {
+        println("El bebe esta desarrollando sus habilidades motoras")
+    }
+    
+    override fun obtener_juegos_favoritos(): List<String> {
+        return listOf("Sonajero", "Peluche suave", "Bloques de colores", "Movil musical")
+    }
+    
+    override fun usar_poder_para_jugar(nombrePoder: String): Boolean {
+        println("El bebe usa el poder $nombrePoder durante el juego")
+        return true
+    }
+    
+    override fun toString(): String {
+        return "GestionJuegoBebe: Controla las actividades de juego y desarrollo de habilidades motrices"
+    }
+}
+
+// Clase Bebe con composition y poderes
+class Bebe(
+    val nombre: String = "Bebe con poderes",
+    val edad: Int = 12,
+    val alimentacion: RutinaParaComer = GestionAlimentacionBebe,
+    val sueno: RutinaParaDormir = GestionSuenoBebe,
+    val juego: BebeJugando = GestionJuegoBebe
+): Habilidades { 
+    override var capacidades: MutableList<Habilidad> = mutableListOf()
+    
+    fun alimentacion_bebe() {
+        println("--- Actividad de Alimentacion para $nombre ---")
+        if (edad < 6) {
+            alimentacion.tomar_leche()
+        } else {
+            alimentacion.tomar_leche()
+            alimentacion.comer_comida_solida()
+        }
+        
+        // Usar poder en caso de estar disponible
+        val poder_4= buscar_poder_por_categria("alimentacion")
+        if (poder_4!= null) {
+            alimentacion.Poder_para_comer(poder_4.nombre)
+        }
+        
+        println("Horario de comidas: ${alimentacion.horario_de_comida()}")
+    }
+    
+    fun bebe_dormidito() {
+        println("--- Actividad de Sueno para $nombre ---")
+        sueno.rutina_dormir()
+        sueno.dormir_siesta()
+        sueno.dormir_noche()
+        
+        // Usar poder en caso de estar disponible
+        val poder_5 = buscar_poder_por_categria("sueno")
+        if (poder_5 != null) {
+            sueno.poder_para_dormir(poder_5.nombre)
+        }
+        
+        println("Horas de sueno recomendadas: ${sueno.Horario_para_dormir()} horas")
+    }
+    
+    fun bebe_jugando() {
+        println("--- Actividad de Juego para $nombre ---")
+        juego.jugar_con_jugetes()
+        juego.interactuar_con_papas()
+        juego.habilidades_motrices()
+        
+        // Usar poder en caso de estar disponible
+        val poder_6 = buscar_poder_por_categria("juego")
+        if (poder_6 != null) {
+            juego.usar_poder_para_jugar(poder_6.nombre)
+        }
+        
+        println("Juguetes favoritos: ${juego.obtener_juegos_favoritos()}")
+    }
+    
+    fun rutina_completa() {
+        println("Iniciando rutina diaria para $nombre (${edad} meses)")
+        println("--------------------------------------------------")
+        
+        alimentacion_bebe()
+        println()
+        
+        bebe_jugando()
+        println()
+        
+        bebe_dormidito()
+        println()
+        
+        println("Rutina diaria completada exitosamente")
+    }
+    
+    fun mostrar_informacion_bebe() {
+        println("Informacion del Bebe")
+        println("Nombre: $nombre")
+        println("Edad: $edad meses")
+        println("Estado: Saludable y con poderes especiales")
+        println("Poderes disponibles: ${descripcion()}")
+        println("Gestion de alimentacion: $alimentacion")
+        println("Gestion de sueno: $sueno")
+        println("Gestion de juego: $juego")
+    }
+    
+    fun ejecutar_poder_especial(nombrePoder: String): String {
+        val poder = capacidades.find { it.nombre == nombrePoder }
+        return when (poder) {
+            is PoderEspecialBebe -> poder.ejecutar_poder_especial()
+            is SuperPoder -> "Ejecutando super poder: ${poder.nombre}"
+            null -> "Poder $nombrePoder no encontrado"
+            else -> "Ejecutando poder: ${poder.nombre}"
+        }
+    }
+    
+    fun buscar_poder_por_categria(categoria: String): PoderEspecialBebe? {
+        return capacidades.filterIsInstance<PoderEspecialBebe>()
+            .find { it.categoria == categoria && it.activo }
+    }
+}
+
+class Zorro(
+    val nombre: String = "Zorro Mistico"
+): Habilidades{ 
+    override var capacidades: MutableList<Habilidad> = mutableListOf()
+    
+    fun mostrar_informacion_zorro() {
+        println("Informacion del Zorro")
+        println("Nombre: $nombre")
+        println("Poderes disponibles: ${descripcion()}")
+    }
+    
+    fun zorro_vs_bebe(nombrePoder: String, bebe: Bebe): String {
+        val poder = capacidades.find { it.nombre == nombrePoder }
+        return if (poder != null && poder.activo) {
+            "El zorro $nombre usa $nombrePoder contra el bebe ${bebe.nombre}"
+        } else {
+            "El poder $nombrePoder no esta disponible"
+        }
+    }
+}
+
+fun main(){
+    // Poderes vistos en clase
+    val poder = SuperPoder("Rayos Laser", true, "Una entidad con rayos laser")
+    val poder_2 = SuperPoder("Volar", true, "La habilidad de volar")
+    val poder_3 = SuperPoder("SuperFuerza", true, "La capacidad de tener mucha fuerza")
+    
+    // Poderes nuevos
+    val poder_4= PoderEspecialBebe("Digestion Rapida", true, "Procesa la comida instantaneamente", "alimentacion")
+    val poder_5 = PoderEspecialBebe("Sueno Reparador", true, "Descansa completamente en menos tiempo", "sueno")
+    val poder_6 = PoderEspecialBebe("Creatividad Infinita", true, "Inventa juegos nuevos constantemente", "juego")
+    
+    // instancias
+    val bebe = Bebe("Jack Jack", 8)
+    val zorrito_firefox = Zorro("Firefox")
+    
+    // agregar poderes al bebe
+    bebe.agregar_capacidad(poder)
+    bebe.agregar_capacidad(poder_2)
+    bebe.agregar_capacidad(poder_3)
+    bebe.agregar_capacidad(poder_4)
+    bebe.agregar_capacidad(poder_5)
+    bebe.agregar_capacidad(poder_6)
+    
+    // agregar poderes al zorro
+    zorrito_firefox.agregar_capacidad(poder)
+    zorrito_firefox.agregar_capacidad(poder_2)
+    zorrito_firefox.agregar_capacidad(poder_3)
+    
+    // Activar capacidades (nuevos poderes)
+    bebe.activar_capacidad(poder.nombre)
+    bebe.activar_capacidad(poder_4.nombre)
+    bebe.activar_capacidad(poder_5.nombre)
+    bebe.activar_capacidad(poder_6.nombre)
+    
+    // Mostrar informacion
+    bebe.mostrar_informacion_bebe()
+    println()
+    zorrito_firefox.mostrar_informacion_zorro()
+    println()
+    
+    // Ejcutar rutina del bebe con poderes
+    bebe.rutina_completa()
+    println()
+    
+    // Impresion de poderes especiales
+    println("--- Poderes Especiales ---")
+    println(bebe.ejecutar_poder_especial("Digestion Rapida"))
+    println(bebe.ejecutar_poder_especial("Rayos Laser"))
+    println(zorrito_firefox.zorro_vs_bebe("Volar", bebe))
+}
